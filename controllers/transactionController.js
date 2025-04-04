@@ -41,11 +41,11 @@ exports.getAllTransactions = async (req, res) => {
 exports.updateTransaction = async (req, res) => {
   try {
     const { id } = req.params;
-    const { description, customer_Id, amount, type } = req.body;
+    const { description, customer_Id, amount, cashType } = req.body;
 
     const transaction = await Transaction.findByIdAndUpdate(
       id,
-      { description, customer_Id, amount, type },
+      { description, customer_Id, amount, cashType },
       { new: true }
     );
 
@@ -86,7 +86,7 @@ exports.paginateSearch = async (req, res) => {
 
     // Build the query conditions
     const query = {
-      //   name: { $regex: searchText, $options: "i" },
+      // name: { $regex: searchText, $options: "i" },
     };
 
     // If startDate and endDate are provided, add the date range filter

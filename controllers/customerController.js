@@ -1,12 +1,24 @@
 const Customer = require("../models/customer");
 const moment = require("moment");
 
-
 exports.createCustomer = async (req, res) => {
   try {
     const { name } = req.body;
+
+    // console.log(name)
+
+    // Check if a customer with the same name already exists
+    const existingCustomer = await Customer.findOne({ name });
+    if (existingCustomer) {
+      console.log(name)
+
+      return res.status(400).json({ message: "Customer name already exists" });
+    }
+
+    // If not, create and save the new customer
     const customer = new Customer({ name });
     await customer.save();
+
     res
       .status(201)
       .json({ message: "Customer created successfully", customer });
@@ -62,10 +74,15 @@ exports.deleteCustomer = async (req, res) => {
   }
 };
 
-
 exports.paginateSearch = async (req, res) => {
   try {
-    const { page = 1, limit = 10, searchText = "", startDate, endDate } = req.query;
+    const {
+      page = 1,
+      limit = 10,
+      searchText = "",
+      startDate,
+      endDate,
+    } = req.query;
 
     // Parse the dates using Moment.js
     const start = startDate ? moment(startDate).startOf("day") : null;
@@ -88,7 +105,8 @@ exports.paginateSearch = async (req, res) => {
     // Perform pagination and search
     const customers = await Customer.find(query)
       .skip((page - 1) * limit)
-      .limit(parseInt(limit));
+      .limit(parseInt(limit))
+      .sort({ _id: -1 });
 
     // Get total count for pagination
     const totalCount = await Customer.countDocuments(query);
@@ -107,4 +125,3 @@ exports.paginateSearch = async (req, res) => {
     res.status(500).json({ message: "Error paginating search", error });
   }
 };
-
